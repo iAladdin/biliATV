@@ -26,6 +26,13 @@
 		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>biliplus.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
 			<key>acgvideo.com</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>

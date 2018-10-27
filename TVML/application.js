@@ -1057,13 +1057,8 @@ function openVideo(aid,notAutoPlay=0,loadingView=null) {
         var video = data;
         console.warn(data);
 
-        if (data.error_msg && data.error_msg.length) {
-            loading.view.getElementsByTagName("title").item(0).innerHTML = `加载失败，重新加载 AV${aid}`;
-            openVideo(aid, notAutoPlay, loading);
-            return;
-        }
 
-        if(notAutoPlay==0 && data.part.length == 1){
+        if(notAutoPlay==0 && data){
             loading.removeDocument();
             playDMAV(data.aid,1,data);
             return;
@@ -1215,20 +1210,28 @@ function testView(testInfo){
 }
 function playDMAV(id=30621030,page=2,data=null) {
     var _play = function (data,page) {
-        let part = data.part[page-1];
+        const dataObject = jsonParse(data);
+        let part = dataObject.data;
+        console.log('[_play],part',part);
         if(part){
             // let timeMap = [];
             var video_url = '';
+            let videos = part.slice();
+            videos = videos.filter( item =>{
+                return item.type === 'single'
+            });
+            video_url = videos[videos.length-1].url;
 
-            if(part.playData.durl.length>1){
-                part.playData.durl.forEach(function (durl) {
-                    if(video_url)video_url+=";";
-                    video_url += `%${durl.length/1000}%${durl.url}`;
-                });
-                video_url = 'edl://'+video_url;
-            }else{
-                video_url = part.playData.durl[0].url;
-            }
+            console.log('[playDMAV] data',data,video_url);
+            // if(part.playData.durl.length>1){
+            //     part.playData.durl.forEach(function (durl) {
+            //         if(video_url)video_url+=";";
+            //         video_url += `%${durl.length/1000}%${durl.url}`;
+            //     });
+            //     video_url = 'edl://'+video_url;
+            // }else{
+            //     video_url = part.playData.durl[0].url;
+            // }
 
 
             let videoList = new DMPlaylist();
@@ -1262,7 +1265,8 @@ function playDMAV(id=30621030,page=2,data=null) {
             myPlayer.play()
         }
     }
-    if(data && data.part && data.part[page-1] && data.part[page-1].playData){
+    if(data){
+        console.log('[playDMAV] data:',data);
         _play(data,page);
         return;
     }
@@ -1280,92 +1284,16 @@ function playDMAV(id=30621030,page=2,data=null) {
 
 function getAvData(id,page,cd){
     
+    var APIURL = "https://www.biliplus.com/api/geturl?update=1&av=" + id + "&page=" + page;
     var url = `https://www.bilibili.com/video/av${id}/?p=${page}`;
 
     console.log('get av data', id, page, cd);
     
-    ajax.get(url,function (html) {
+    ajax.get(APIURL,function (html) {
        console.log(html);
-
-       var playinfoJson = html
-       .match(/__playinfo__=(.*?)<\/script>/g)
-       .map(m => m.replace(/^__playinfo__=(.*?)<\/script>$/, '$1'))[0];
-
-       var playinfo = JSON.parse(playinfoJson);
-
-
-       var InitialStateJson = html
-       .match(/__INITIAL_STATE__=(.*?)};/g)
-       .map(m => m.replace(/^__INITIAL_STATE__=(.*?)};$/, '$1}'))[0];
-
-       var InitialState = JSON.parse(InitialStateJson);
-
-       var videoData = InitialState.videoData;
-       var upData = InitialState.upData;
-       /***
-aid: 30894051
-attribute: 16384
-cid: 53940994
-copyright: 2
-ctime: 1535805226
-desc: "https://www.youtube.com/watch?v=BBA5pIFCgAk↵Dog Peanut Butter Pad↵2018年8月29日发布↵联动视频：【熊叔电视购物】升级版Zungle音乐太阳眼镜（av29271427）"
-dimension: {width: 1920, height: 1080, rotate: 0}
-duration: 689
-dynamic: "#熊叔实验室# (°∀°)ﾉ 嗨，花生酱"
-embedPlayer: "EmbedPlayer(\"player\", \"//static.hdslb.com/play.swf\", \"cid=53940994&aid=30894051&pre_ad=\")"
-no_cache: false
-owner: {mid: 22009424, name: "conandiy", face: "http://i2.hdslb.com/bfs/face/14f2e33b74942976fc542c2e773dee0a339c4b13.jpg"}
-pages: [Object] (1)
-        cid: 53940994
-        dimension: {width: 1920, height: 1080, rotate: 0}
-        duration: 689
-        from: "vupload"
-        page: 1
-        part: "Dog Peanut Butter Pad_sub"
-        vid: ""
-        weblink: ""
-pic: "http://i0.hdslb.com/bfs/archive/552a8977c37ae69a94dfb571aa05a1e53b754d17.jpg"
-pubdate: 1535805227
-rights: {bp: 0, elec: 0, download: 1, movie: 0, pay: 0, …}
-stat: {aid: 30894051, view: "--", danmaku: "--", reply: 2, favorite: "--", …}
-state: 0
-tid: 124
-title: "【熊叔实验室】狗狗的花生酱吸盘垫 @conandiy"
-tname: "趣味科普人文"
-videos: 1
-        */
-
-    //    window.__INITIAL_STATE__=
-
-
-
-       console.log('playinfo', playinfo);
-       console.log('InitialState', InitialState);
-        
-       const part = videoData.pages.map((v, i) => {
-
-        v.name = v.part;
-        if(v.page == page){
-            v.playData = playinfo.data;
+        if(html){
+           cd(html);
         }
-        return v;
-       });
-
-       const cardrich = upData;
-       const data = {
-        aid: id,
-        wb_full_url: url,
-        wb_img: videoData.pic,
-        wb_desc: videoData.title,
-        wb_summary: videoData.desc,
-        part: part,
-        cardrich: cardrich,
-       }
-
-        console.log('data',data);
-
-       cd(data);
-
 
     });
 

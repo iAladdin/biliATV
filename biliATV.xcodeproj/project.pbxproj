@@ -201,7 +201,7 @@
 				TargetAttributes = {
 					16055A601F285264000F3AF7 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = N8JMN6858M;
+						DevelopmentTeam = 83A66Y7RYD;
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
@@ -386,7 +386,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = N8JMN6858M;
+				DEVELOPMENT_TEAM = 83A66Y7RYD;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/biliATV",
@@ -411,7 +411,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = N8JMN6858M;
+				DEVELOPMENT_TEAM = 83A66Y7RYD;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/biliATV",
