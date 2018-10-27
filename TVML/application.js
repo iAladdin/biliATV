@@ -169,6 +169,49 @@ function jsonParse(s) {
     return data;
 }
 
+function openRanking(setDocument){
+    openVideoList("排行榜",function (page,callback,getPage) {
+        ajax.get("https://api.bilibili.com/x/web-interface/ranking",function (data) {
+            data = jsonParse(data);
+            console.warn('排行榜',data);
+            if(data.code==0){
+                data = data.data.list;
+                let items = [];
+                data.forEach(function (d) {
+
+                    var objectItem = false;
+                    if(d){
+                        objectItem = new DataItem('video', d.aid);
+                        objectItem.cover = d.pic;
+                        objectItem.title = d.title;
+                        objectItem.user = d.author;
+                        objectItem.onselect = function (e) {
+                            openVideo(d.aid)
+                        };
+                        objectItem.onholdselect = function (e) {
+                            openVideo(d.aid,true);
+                        };
+                        objectItem.onhighlight = function (e) {
+                            getPage(page+1);
+                        };
+                    }
+                    if(objectItem)items.push(objectItem);
+                });
+                console.log(items);
+                callback(items);
+            }else{
+                displayError(`加载错误 错误ID${data.code}`,)
+            }
+            callback(false)
+        })
+    },`<lockup prototype="video">
+    <img binding="@src:{cover};" width="300" height="200"/>
+    <title binding="textContent:{title};" />
+    <row>
+        <text binding="textContent:{user};"></text>
+    </row>
+</lockup>`);
+}
 function myHome(setDocument) {
     setDocument(tvOS.template.loading("加载中个人信息.."));
     ajax.get('https://api.bilibili.com/x/web-interface/nav',function (data) {
@@ -485,6 +528,7 @@ function openUser(mid) {
     var loading = tvOS.template.loading(`加载中...`);
     loading.display();
     ajax.get(`https://api.bilibili.com/cardrich?mid=${mid}`,function (data) {
+        console.log(data)
         data = jsonParse(data);
         if(data.code == 0){
             data = data.data.card;
@@ -1231,6 +1275,13 @@ function initBar(){
         tvOS.element.menuItem('我的',function (e,menuItem) {
             if(!menuItem.hasDocument){
                 myHome(function (v) {
+                    menuItem.setDocument(v);
+                });
+            }
+        }),
+        tvOS.element.menuItem('排行',function (e,menuItem) {
+            if(!menuItem.hasDocument){
+                openRanking(function (v) {
                     menuItem.setDocument(v);
                 });
             }
