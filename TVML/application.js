@@ -2,7 +2,21 @@ var dom;
 var test = {};
 var videoTest = {};
 var nowPlayer = null;
+var currentPlayItem = {
+    aid : null,
+    duration : null,
+    playedLength:null,
+}
+var defaultPlayItem = {
+    aid : null,
+    duration : null,
+    playedLength:null,
+}
+let nowAid = null;
 var userData = {};
+let nextString = null;
+let nextTimer = null;
+let currentState = null;
 var window = this;
 
 /*
@@ -1325,11 +1339,56 @@ function testView(testInfo){
     var alert = new tvOS.template.alert(testInfo||'测试标题',['描述1','description2'],[button,button2],['footTexts1','footTexts2']);
     return alert;
 }
+const jsParam = {};
+
+const jsTimeChangeParam = {interval: 1};
+function timeDidChangeHandler(listener,extraInfo){
+    console.log("timeChange: " + listener.time, extraInfo);
+    currentPlayItem.playedLength = listener.time;
+}
+
+function timeBoundaryDidCrossHandler(listener,extraInfo){
+    console.log("bound: " + listener, extraInfo);
+}
+
+function videoDidPlayEndHandler(listener,extraInfo){
+    console.log("state: " , listener,extraInfo);
+    console.log('next stateChange',listener.state,nextString);
+    const playedPercentage = currentPlayItem.playedLength/currentPlayItem.duration;
+    
+    if(playedPercentage > 0.98 && currentState === 'playing'&&nextString === null && listener.state === 'end'){
+        console.log('next fetch new episode');
+        nextString = '';
+        nextString = getStringFromURL(`http://comment.bilibili.com/recommendnew,${nowAid}`);
+        nextObject = jsonParse(nextString);
+        console.log('next got next object',nextObject);
+        if(nextObject.data){
+            const nextAid = nextObject.data[0].aid;
+            console.log('next nextTimer ',nextTimer);
+            if(!nextTimer){
+                console.log('next new nextTimer ',nextTimer);
+                nextTimer = setTimeout(() => {
+                    console.log('next real func run');
+                    openVideo(nextAid);
+                    clearTimeout(nextTimer);
+                    nextTimer = null;
+                    nextString = null;
+                    console.log('next real func done');
+                }, 1000);   
+            }
+        }
+    }else{
+        currentPlayItem = defaultPlayItem;
+        currentState = null;
+    }
+    currentState = listener.state;
+}
 function playDMAV(id=30621030,page=2,data=null) {
     var _play = function (data,page) {
         let part = data;
         console.log('[_play],part',part);
         if(part){
+            console.log('next playDMAV');
             // let timeMap = [];
             var video_url = '';
             let url = part.durl[0].url;
@@ -1358,28 +1417,30 @@ function playDMAV(id=30621030,page=2,data=null) {
                 "User-Agent": USER_AGENT,
                 "referer": `http://www.bilibili.com/video/av${data.aid}`
             }};
-            video.mp4 = false;
+            video.mp4 = video_url.indexOf('.flv') < 0;
             video.title = `P${part.page}:${part.name} - ${data.wb_desc}`;
             video.description = data.wb_summary;
             videoList.push(video);
             console.log(videoList);
-            if(nowPlayer)nowPlayer.stop();
+            if(nowPlayer){
+                nowPlayer.stop();
+                nowPlayer.removeEventListener('stateDidChange',videoDidPlayEndHandler,jsParam);
+                nowPlayer.removeEventListener('timeBoundaryDidCross',timeBoundaryDidCrossHandler,jsParam);
+                nowPlayer.removeEventListener('timeDidChange',timeDidChangeHandler,jsTimeChangeParam);
+            }
             let myPlayer = new DMPlayer();
             nowPlayer = myPlayer;
             console.log(myPlayer);
             myPlayer.playlist = videoList;
-            // myPlayer.addEventListener('timeBoundaryDidCross', (listener, extraInfo) => {
-            //     console.log("bound: " + listener.boundary);
-            // }, {});
+            myPlayer.addEventListener('timeBoundaryDidCross', timeBoundaryDidCrossHandler, {});
 
-            // myPlayer.addEventListener('timeDidChange', function(listener,extraInfo) {
-            //     console.log("time: " + listener.time);
-            // },{interval: 1});
-            // myPlayer.addEventListener('stateDidChange', function(listener, extraInfo) {
-            //     console.log("state: " + listener.state);
-            // },{});
+            myPlayer.addEventListener('timeDidChange', timeDidChangeHandler,jsTimeChangeParam);
+            myPlayer.addEventListener('stateDidChange',videoDidPlayEndHandler,jsParam);
             // myPlayer.addDanMu(msg="This is a test", color=0xFF0000, fontSize=25, style=0);
             myPlayer.play()
+            nowAid = data.aid;
+            currentPlayItem.aid = data.aid;
+            currentPlayItem.duration = data.timelength/1000.0;
         }
     }
     if(data){
