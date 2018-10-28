@@ -1361,8 +1361,8 @@ function videoDidPlayEndHandler(listener,extraInfo){
         nextString = '';
         nextString = getStringFromURL(`http://comment.bilibili.com/recommendnew,${nowAid}`);
         nextObject = jsonParse(nextString);
-        console.log('next got next object',nextObject);
-        if(nextObject.data){
+        console.log('next got next object',nextString,nextObject);
+        if(nextObject&&nextObject.data){
             const nextAid = nextObject.data[0].aid;
             console.log('next nextTimer ',nextTimer);
             if(!nextTimer){
@@ -1391,22 +1391,22 @@ function playDMAV(id=30621030,page=2,data=null) {
             console.log('next playDMAV');
             // let timeMap = [];
             var video_url = '';
-            let url = part.durl[0].url;
+            // let url = part.durl[0].url;
             // videos = videos.filter( item =>{
             //     return item.type === 'single'
             // });
-            video_url = url;
+            // video_url = url;
 
             console.log('[playDMAV] data',data,video_url);
-            // if(part.playData.durl.length>1){
-            //     part.playData.durl.forEach(function (durl) {
-            //         if(video_url)video_url+=";";
-            //         video_url += `%${durl.length/1000}%${durl.url}`;
-            //     });
-            //     video_url = 'edl://'+video_url;
-            // }else{
-            //     video_url = part.playData.durl[0].url;
-            // }
+            if(part.durl.length>1){
+                part.durl.forEach(function (item) {
+                    if(video_url) video_url+=";";
+                    video_url += `%${item.length/1000}%${item.url}`;
+                });
+                video_url = 'edl://'+video_url;
+            }else{
+                video_url = part.durl[0].url;
+            }
 
 
             let videoList = new DMPlaylist();
