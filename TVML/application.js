@@ -1353,9 +1353,9 @@ function timeBoundaryDidCrossHandler(listener,extraInfo){
 
 function videoDidPlayEndHandler(listener,extraInfo){
     console.log("state: " , listener,extraInfo);
-    console.log('next stateChange',listener.state,nextString);
     const playedPercentage = currentPlayItem.playedLength/currentPlayItem.duration;
-    
+
+    console.log('currentPlayItem',currentPlayItem,playedPercentage)
     if(playedPercentage > 0.98 && currentState === 'playing'&&nextString === null && listener.state === 'end'){
         console.log('next fetch new episode');
         nextString = '';
@@ -1377,7 +1377,7 @@ function videoDidPlayEndHandler(listener,extraInfo){
                 }, 1000);   
             }
         }
-    }else{
+    }else if(playedPercentage < 0.98 && currentState === 'playing'&&nextString === null && listener.state === 'end'){
         currentPlayItem = defaultPlayItem;
         currentState = null;
     }
