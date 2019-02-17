@@ -85,8 +85,8 @@ const _appSecret_IOS = "8cb98205e9b2ad3669aad0fce12a4c13";//Ios
 const _appKey_IOS = "4ebafd7c4951b366";
 
 const _appSecret_Wp = "560c52ccd288fed045859ed18bffd973";
-const _appKey = "422fd9d7289a1dd9";//W
-const _appKey = "1d8b6e7d45233436";//Wp
+const _appKey_Wp1 = "422fd9d7289a1dd9";//W
+const _appKey_Wp2 = "1d8b6e7d45233436";//Wp
 
 const _appSecret_Android = "560c52ccd288fed045859ed18bffd973";//Android
 const _appKey_Android = "1d8b6e7d45233436";
