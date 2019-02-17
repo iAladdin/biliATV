@@ -134,9 +134,9 @@ function api_req(cid,quality){
     let ts = Date.now();
     // if not bangumi:
         // let params_str = `cid=${cid}&player=1&quality=${quality}&ts=${ts}`;
-        const params_str = `appkey=${_appKey_Android}&cid=${cid}&otype=json&qn=${quality}&quality=${quality}&type=`;
+        const params_str = `appkey=${_appKey_IOS}&cid=${cid}&otype=json&qn=${quality}&quality=${quality}&type=`;
 
-        const chksum = MD5(params_str+_appSecret_Android);
+        const chksum = MD5(params_str+_appSecret_IOS);
         api_url = 'http://interface.bilibili.com/v2/playurl?' + params_str + '&sign=' + chksum;
         console.log(api_url);
         const data = jsonParse(getStringFromURL(api_url));
