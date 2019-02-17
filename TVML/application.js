@@ -81,6 +81,32 @@ const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_0) AppleWebKit/
 const APPKEY = '85eb6835b0a1034e';
 const APPSEC = '2ad42749773c441109bdc0191257a664';
 
+const _appSecret_IOS = "8cb98205e9b2ad3669aad0fce12a4c13";//Ios
+const _appKey_IOS = "4ebafd7c4951b366";
+
+const _appSecret_Wp = "560c52ccd288fed045859ed18bffd973";
+const _appKey = "422fd9d7289a1dd9";//W
+const _appKey = "1d8b6e7d45233436";//Wp
+
+const _appSecret_Android = "560c52ccd288fed045859ed18bffd973";//Android
+const _appKey_Android = "1d8b6e7d45233436";
+
+const _appSecret_Android2 = "jr3fcr8w7qey8wb0ty5bofurg2cmad8x";
+const _appKey_Android2 = "1d8b6e7d45233436";
+
+const _appSecret_VIP = "9b288147e5474dd2aa67085f716c560d";
+const _appKey_VIP = "iVGUTjsxvpLeuDCf"
+
+const _appSecret_PlayUrl = "1c15888dc316e05a15fdd0a02ed6584f";
+const _appKey_WebLogin = "27eb53fc9058f8c3";//Wp
+
+const _appSecret_WebLogin = "c2ed53a74eeefe3cf99fbd01d8c9c375";
+
+//not work
+const _appSecret_VIDEO = "94aba54af9065f71de72f5508f1cd42e";
+const _appKey_VIDEO = "84956560bc028eb7";//not work
+const _appSecret_DONTNOT = "2ad42749773c441109bdc0191257a664";
+
 function GetSign(params,appkey,AppSecret=None){
     params['appkey']=appkey
     let data = "";
@@ -108,9 +134,9 @@ function api_req(cid,quality){
     let ts = Date.now();
     // if not bangumi:
         // let params_str = `cid=${cid}&player=1&quality=${quality}&ts=${ts}`;
-        const params_str = `appkey=84956560bc028eb7&cid=${cid}&otype=json&qn=${quality}&quality=${quality}&type=`;
-        console.log(params_str,'94aba54af9065f71de72f5508f1cd42e');
-        const chksum = MD5(params_str+'94aba54af9065f71de72f5508f1cd42e');
+        const params_str = `appkey=${_appKey_Android}&cid=${cid}&otype=json&qn=${quality}&quality=${quality}&type=`;
+
+        const chksum = MD5(params_str+_appSecret_Android);
         api_url = 'http://interface.bilibili.com/v2/playurl?' + params_str + '&sign=' + chksum;
         console.log(api_url);
         const data = jsonParse(getStringFromURL(api_url));
@@ -131,6 +157,8 @@ function getBilibiliURL(aid,pid,cb) {
     const data = api_req(cid_args.cid,116);
     data.name = cid_args.pagename;
     data.aid = aid;
+    const danmuString = getStringFromURL(`https://api.bilibili.com/x/v1/dm/list.so?oid=${cid_args.cid}`);
+    console.log('danmu,',danmuString);
     cb(data);
 }
 
@@ -1388,15 +1416,7 @@ function playDMAV(id=30621030,page=2,data=null) {
         let part = data;
         console.log('[_play],part',part);
         if(part){
-            console.log('next playDMAV');
-            // let timeMap = [];
             var video_url = '';
-            // let url = part.durl[0].url;
-            // videos = videos.filter( item =>{
-            //     return item.type === 'single'
-            // });
-            // video_url = url;
-
             console.log('[playDMAV] data',data,video_url);
             if(part.durl.length>1){
                 part.durl.forEach(function (item) {
